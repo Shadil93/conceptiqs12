@@ -1,0 +1,48 @@
+
+var spinner = $('#loader');
+
+$(document).on("submit", ".formSubmit" , function (evt) {
+  evt.preventDefault();
+
+$('.error-validation').html("");
+   spinner.show();
+  var actionurl = "";
+  var content = $(this).data("content");
+  var page = $(this).data("page");
+  var actionurl = '/admin'+content;
+
+  var formname = new FormData(this);
+  $.ajax({
+    type: "POST",
+    url: actionurl,
+    data: formname,
+    cache: false,
+    contentType: false,
+    processData: false,
+    success: function (result) {
+
+    $('#modal-'+page).modal('hide');
+    spinner.hide();
+      if (result.status == true) {
+        Lobibox.notify("success", {
+          size: "mini",
+          position: "top right",
+          msg: result.message,
+          delay: 4000,
+        });
+      }
+      $('.result-'+page).html(result.htmlStore);
+     
+    },
+    error: function (data) {
+        spinner.hide();
+
+      $.each(data.responseJSON.errors, function (key, value) {
+        console.log(value);
+        field = $('[name="' + key + '"]');
+        field.next("span.error-validation").html(value);
+        });
+    },
+  });
+});
+
